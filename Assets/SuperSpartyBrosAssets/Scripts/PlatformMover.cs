@@ -31,6 +31,7 @@ public class PlatformMover : MonoBehaviour {
 	void Update () {
 		// if beyond _moveTime, then start moving
 		if (Time.time >= _moveTime) {
+
 			Movement();
 		}
 	}
@@ -38,7 +39,7 @@ public class PlatformMover : MonoBehaviour {
 	void Movement() {
 		// if there isn't anything in My_Waypoints
 		if ((myWaypoints.Length != 0) && (_moving)) {
-
+            print("YES");
 			// move towards waypoint
 			_transform.position = Vector3.MoveTowards(_transform.position, myWaypoints[_myWaypointIndex].transform.position, moveSpeed * Time.deltaTime);
 

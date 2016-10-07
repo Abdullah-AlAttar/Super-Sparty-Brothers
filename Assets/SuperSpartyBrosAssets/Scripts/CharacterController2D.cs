@@ -47,7 +47,7 @@ public class CharacterController2D : MonoBehaviour {
 	bool facingRight = true;
 	bool isGrounded = false;
 	bool isRunning = false;
-
+    bool canDoubleJump = false;
 	// store the layer the player is on (setup in Awake)
 	int _playerLayer;
 
@@ -89,7 +89,6 @@ public class CharacterController2D : MonoBehaviour {
 
 		// determine horizontal velocity change based on the horizontal input
 		_vx = Input.GetAxisRaw ("Horizontal");
-        print(_vx);
 		// Determine if running based on the horizontal movement
 		if (_vx != 0) 
 		{
@@ -103,41 +102,44 @@ public class CharacterController2D : MonoBehaviour {
 
 		// get the current vertical velocity from the rigidbody component
 		_vy = _rigidbody.velocity.y;
-
-		// Check to see if character is grounded by raycasting from the middle of the player
-		// down to the groundCheck position and see if collected with gameobjects on the
-		// whatIsGround layer
-		isGrounded = Physics2D.Linecast(_transform.position, groundCheck.position, whatIsGround);  
+        // Check to see if character is grounded by raycasting from the middle of the player
+        // down to the groundCheck position and see if collected with gameobjects on the
+        // whatIsGround layer
+        isGrounded = Physics2D.Linecast(_transform.position, groundCheck.position, whatIsGround);
+        if(isGrounded== true)
+        {
+            canDoubleJump = true;
+        }
 
 		// Set the grounded animation states
 		_animator.SetBool("Grounded", isGrounded);
 
 		if(isGrounded && Input.GetButtonDown("Jump")) // If grounded AND jump button pressed, then allow the player to jump
 		{
-			// reset current vertical motion to 0 prior to jump
-			_vy = 0f;
-			// add a force in the up direction
-			_rigidbody.AddForce (new Vector2 (0, jumpForce));
-			// play the jump sound
-			PlaySound(jumpSFX);
+            Jump(jumpForce);  
 		}
+        else if(canDoubleJump && Input.GetButtonDown("Jump"))
+        {
+            Jump(jumpForce/2f);
+            canDoubleJump = false;
+        }
 
         // If the player stops jumping mid jump and player is not yet falling
         // then set the vertical velocity to 0 (he will start to fall from gravity)
       
 		if(Input.GetButtonUp("Jump") && _vy>0f)
 		{
-            print("HELLO");
+         
 			_vy = 0f;
 		}
 
 		// Change the actual velocity on the rigidbody
 		_rigidbody.velocity = new Vector2(_vx * moveSpeed, _vy);
 
-		// if moving up then don't collide with platform layer
-		// this allows the player to jump up through things on the platform layer
-		// NOTE: requires the platforms to be on a layer named "Platform"
-		Physics2D.IgnoreLayerCollision(_playerLayer, _platformLayer, (_vy > 0.0f)); 
+        // if moving up then don't collide with platform layer
+        // this allows the player to jump up through things on the platform layer
+        // NOTE: requires the platforms to be on a layer named "Platform"
+		Physics2D.IgnoreLayerCollision (_playerLayer, _platformLayer, (_vy > 0.0f)); 
 	}
 
 	// Checking to see if the sprite should be flipped
@@ -164,7 +166,15 @@ public class CharacterController2D : MonoBehaviour {
 		// update the scale
 		_transform.localScale = localScale;
 	}
-
+    void Jump(float jumpForceValue)
+    {
+        // reset current vertical motion to 0 prior to jump
+        _vy = 0f;
+        // add a force in the up direction
+        _rigidbody.AddForce(new Vector2(0,jumpForceValue));
+        // play the jump sound
+        PlaySound(jumpSFX);
+    }
 	// if the player collides with a MovingPlatform, then make it a child of that platform
 	// so it will go for a ride on the MovingPlatform
 	void OnCollisionEnter2D(Collision2D other)
@@ -269,4 +279,8 @@ public class CharacterController2D : MonoBehaviour {
 		_transform.position = spawnloc;
 		_animator.SetTrigger("Respawn");
 	}
+    public void Bounce()
+    {
+        Jump(jumpForce);
+    }
 }

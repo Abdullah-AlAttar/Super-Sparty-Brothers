@@ -7,6 +7,7 @@ public class DeathZone : MonoBehaviour {
 
 	// Handle gameobjects collider with a deathzone object
 	void OnCollisionEnter2D (Collision2D other) {
+        print("I DIED");
 		if (other.gameObject.tag == "Player")
 		{
 			// if player then tell the player to do its FallDeath

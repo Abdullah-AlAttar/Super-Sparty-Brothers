@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class Enemy : MonoBehaviour {
-	
+	[Range(1f,10f)]
 	public float moveSpeed = 4f;  // enemy move speed when moving
 	public int damageAmount = 10; // probably deal a lot of damage to kill player immediately
 
@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour {
 	
 	public string stunnedLayer = "StunnedEnemy";  // name of the layer to put enemy on when stunned
 	public string playerLayer = "Player";  // name of the layer to put enemy on when stunned
-	
+	[HideInInspector]
 	public bool isStunned = false;  // flag for isStunned
 	
 	public GameObject[] myWaypoints; // to define the movement waypoints
